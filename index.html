@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unsent Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  /* Sweetie-16 palette */
+  :root{--ink:#1a1c2c;--wall:#333c57;--navy:#29366f;--light:#f4f4f4;--yellow:#ffcd75;--orange:#ef7d57;--red:#b13e53;--green:#38b764;--cyan:#73eff7;--lime:#a7f070;--blue:#41a6f6;--grey:#94b0c2}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--ink);color:var(--light);font-family:'VT323',monospace;font-size:22px;line-height:1.2;
+    background-image:linear-gradient(#ffffff08 50%,transparent 50%);background-size:100% 4px}
+  nav{display:flex;justify-content:center;gap:12px;padding:20px 12px 8px}
+  nav button{font-family:'Press Start 2P',monospace;font-size:12px;padding:12px 14px;border:4px solid var(--light);background:var(--wall);color:var(--grey);cursor:pointer;box-shadow:4px 4px 0 #000}
+  nav button.active{background:var(--yellow);color:var(--ink);border-color:var(--ink);box-shadow:4px 4px 0 var(--red)}
+  main{max-width:900px;margin:0 auto;padding:16px 16px 48px}
+  section{display:none}section.active{display:block}
+  h1{font-family:'Press Start 2P',monospace;font-size:16px;text-align:center;margin:18px 0 6px;color:var(--yellow);font-weight:400}
+  .sub{text-align:center;color:var(--grey);margin-bottom:8px}
+  label{display:block;margin:14px 0 6px;font-family:'Press Start 2P',monospace;font-size:10px;color:var(--cyan)}
+  input,textarea{width:100%;padding:10px;border:4px solid var(--light);border-radius:0;background:var(--navy);color:var(--light);font:inherit;outline:none}
+  input:focus,textarea:focus{border-color:var(--yellow)}
+  textarea{min-height:110px;resize:vertical}
+  .btn{font-family:'Press Start 2P',monospace;font-size:11px;padding:12px 14px;border:4px solid var(--ink);background:var(--yellow);color:var(--ink);cursor:pointer;box-shadow:4px 4px 0 #000}
+  .btn:active{transform:translate(4px,4px);box-shadow:none}
+  .btn.full{width:100%;margin-top:18px}
+  .btn.small{background:var(--light);font-size:9px;padding:8px 10px;margin:0}
+  #compose{max-width:480px;margin:0 auto}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-top:32px}
+  .card{border:4px solid #000;box-shadow:4px 4px 0 #000;padding:12px;min-height:170px;display:flex;flex-direction:column;justify-content:space-between;color:var(--ink)}
+  .card .to{font-family:'Press Start 2P',monospace;font-size:10px;margin-bottom:10px;line-height:1.5;word-break:break-word}
+  .card .body{font-size:23px;line-height:1.15;white-space:pre-wrap;word-break:break-word}
+  .card .foot{display:flex;justify-content:space-between;gap:6px;margin-top:12px}
+  .card .foot button{font-family:'Press Start 2P',monospace;font-size:8px;border:3px solid #000;background:#ffffffaa;padding:5px 6px;cursor:pointer;color:var(--ink)}
+  #shared .card{max-width:320px;margin:24px auto 0}
+  .gwrap{max-width:480px;margin:0 auto;text-align:center}
+  .games{display:grid;gap:16px;margin-top:20px}
+  .gcard{display:flex;flex-direction:column;gap:10px;text-align:left;padding:16px;border:4px solid #000;background:var(--yellow);color:var(--ink);box-shadow:4px 4px 0 #000;cursor:pointer;font:inherit}
+  .gcard:active{transform:translate(4px,4px);box-shadow:none}
+  .gtitle{font-family:'Press Start 2P',monospace;font-size:14px}
+  .gtag{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--red)}
+  .gtop{display:flex;justify-content:space-between;gap:8px;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--grey);margin:10px 0}
+  .gbtns{display:flex;gap:12px;justify-content:center;margin-bottom:14px}
+  #gc{width:100%;display:block;border:4px solid var(--light);box-shadow:6px 6px 0 #000;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;background:var(--wall)}
+  .ghint{margin-top:16px;font-size:20px;color:var(--cyan);min-height:1.2em}
+  .gmsg{margin-top:8px;font-family:'Press Start 2P',monospace;font-size:20px;color:var(--yellow);min-height:1.5em}
+</style>
+</head>
+<body>
+<nav>
+  <button id="t1" class="active">NOTES</button>
+  <button id="t2">GAMES</button>
+</nav>
+<main>
+  <section id="s1" class="active">
+    <h1>UNSENT NOTES</h1>
+    <div class="sub">write what you never said</div>
+    <div id="compose">
+      <label>TO</label><input id="to" maxlength="30">
+      <label>MESSAGE</label><textarea id="msg" maxlength="300"></textarea>
+      <button class="btn full" id="make">SEND</button>
+    </div>
+    <div id="shared" style="display:none"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+  <section id="s2">
+    <div id="hub" class="gwrap">
+      <h1>GAMES</h1>
+      <div class="sub">pick one</div>
+      <div class="games">
+        <button class="gcard" id="open-trace">
+          <span class="gtitle">TRACE</span>
+          <span class="gdesc">grab the key, trace the shape, open the door</span>
+          <span class="gtag">3 LEVELS</span>
+        </button>
+      </div>
+    </div>
+    <div id="trace" class="gwrap" style="display:none">
+      <h1>TRACE</h1>
+      <div class="sub">drag the guy, grab the key, trace the shape</div>
+      <div class="gbtns"><button class="btn small" id="gback">BACK</button><button class="btn small" id="grestart">RESTART</button><button class="btn small" id="gall">START OVER</button></div>
+      <div class="gtop"><span id="glevel"></span><span id="gstat"></span></div>
+      <canvas id="gc"></canvas>
+      <div class="ghint" id="ghint"></div>
+      <div class="gmsg" id="gmsg"></div>
+    </div>
+  </section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+function show(n){for(const i of [1,2]){$('t'+i).classList.toggle('active',i==n);$('s'+i).classList.toggle('active',i==n)}}
+$('open-trace').onclick=()=>{$('hub').style.display='none';$('trace').style.display='block';game.init()};
+$('gback').onclick=()=>{$('trace').style.display='none';$('hub').style.display='block'};
+$('t1').onclick=()=>show(1);$('t2').onclick=()=>show(2);
+
+// ---- Tab 1: notes (the note lives inside the share link, no server needed) ----
+const enc=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const dec=s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))));
+const COLORS=['#73eff7','#ffcd75','#a7f070','#ef7d57','#41a6f6','#f4f4f4'];
+const colorOf=n=>COLORS[[...n.to.toLowerCase()].reduce((a,c)=>a+c.charCodeAt(0),0)%COLORS.length];
+function card(n,deletable){
+  const c=document.createElement('div');c.className='card';c.style.background=colorOf(n);
+  const t=document.createElement('div');t.className='to';t.textContent='TO: '+n.to;
+  const m=document.createElement('div');m.className='body';m.textContent=n.msg;
+  const f=document.createElement('div');f.className='foot';
+  const l=document.createElement('button');l.textContent='COPY LINK';
+  l.onclick=()=>{navigator.clipboard.writeText(location.origin+location.pathname+'#n='+enc(n));l.textContent='COPIED'};
+  f.append(l);
+  if(deletable){const d=document.createElement('button');d.textContent='DELETE';d.onclick=()=>{notes=notes.filter(x=>x.id!==n.id);save();draw()};f.append(d)}
+  const w=document.createElement('div');w.append(t,m);c.append(w,f);return c;
+}
+let notes=[];try{notes=JSON.parse(localStorage.getItem('notes')||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem('notes',JSON.stringify(notes))}catch(e){}};
+function draw(){const g=$('grid');g.textContent='';notes.forEach(n=>g.append(card(n,true)))}
+$('make').onclick=()=>{
+  const n={id:Date.now(),to:$('to').value.trim(),msg:$('msg').value.trim()};
+  if(!n.to||!n.msg){alert('Please fill in the name and the message.');return}
+  notes.unshift(n);save();draw();$('to').value='';$('msg').value='';
+};
+draw();
+if(location.hash.startsWith('#n=')){try{const n=dec(location.hash.slice(3));$('shared').style.display='block';$('shared').append(card(n,false))}catch(e){}}
+
+// ---- Tab 2: drag the guy along the shape, get the key, open the door ----
+const game=(()=>{
+  const LET={
+    I:[[0.4,1],[0.4,0],[0.4,1]],
+    L:[[0,1],[0,0],[0,1],[0.8,1]],
+    K:[[0,1],[0,0],[0,0.5],[0.8,0],[0.2,0.5],[0.8,1]],
+    E:[[0,1],[0,0],[0.8,0],[0,0],[0,0.5],[0.6,0.5],[0,0.5],[0,1],[0.8,1]],
+    U:[[0,0],[0,1],[0.8,1],[0.8,0]]
+  };
+  const LEVELS=['I','HEART','U'];
+  const MSG=['I','I like','I like U'];
+  // pixel sprites: one char = one canvas pixel
+  const PAL={'1':'#ffcd75','2':'#a8741a','3':'#3b2a20','4':'#f5c28b','5':'#ef7d57','6':'#29366f','7':'#000',
+             'a':'#5a3418','b':'#a8662b','c':'#c98542','d':'#12122a'};
+  const GUY=[
+    '..3333..',
+    '.333333.',
+    '.344443.',
+    '.474474.',
+    '.444444.',
+    '..4444..',
+    '.555555.',
+    '55555555',
+    '.555555.',
+    '.555555.',
+    '.66..66.',
+    '.77..77.'
+  ];
+  const KEY=[
+    '.1111.......',
+    '11..11......',
+    '11..11111111',
+    '.1111...1.1.',
+    '........1.1.'
+  ];
+  const DOOR=[
+    '..aaaaaa..',
+    '.aabbbbaa.',
+    'aabbbbbbaa',
+    'abbccccbba',
+    'abbccccbba',
+    'abbccccbba',
+    'abbbbbbbba',
+    'abbbbbbb1a',
+    'abbccccbba',
+    'abbccccbba',
+    'abbccccbba',
+    'abbccccbba',
+    'abbbbbbbba',
+    'aaaaaaaaaa'
+  ];
+  const DOOR_OPEN=DOOR.map(r=>[...r].map((ch,i)=>ch=='a'?'a':(i<=3?(ch=='1'?'b':ch):'d')).join(''));
+  const cv=$('gc'),ctx=cv.getContext('2d');
+  let timer,lv=0,route,samples,covered,pos,hasKey,done,drag,W,R,keyP,doorP,startP,ready=false,PX=4;
+  const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+  function build(){
+    const word=LEVELS[lv];
+    PX=cv.clientWidth<400?3:4;
+    route=[];
+    let ch;
+    if(word=='HEART'){
+      const cw=cv.clientWidth,m=cw*0.08;ch=cw*0.9;
+      const sc=Math.min((cw-2*m)/32,(ch-2*m)/30);
+      W=Math.max(24,sc*2.8);
+      for(let t=0.7;t<=2*Math.PI-0.7+1e-9;t+=0.04){
+        const x=16*Math.pow(Math.sin(t),3),y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+        route.push([cw/2+x*sc,ch/2-(y+2.5)*sc]);
+      }
+    }else{
+      const gap=0.6,lw=0.8,total=word.length*lw+(word.length-1)*gap;
+      const cw=cv.clientWidth,m=cw*0.08;ch=cw*0.9;
+      const u=Math.min((cw-2*m)/total,(ch-2*m)*0.8);
+      const ox=(cw-total*u)/2,oy=(ch-u)/2;
+      W=Math.max(24,u*0.24);
+      [...word].forEach((c,i)=>{
+        const x0=i*(lw+gap);
+        (word=='I'?[[0.4,1],[0.4,0]]:LET[c]).forEach(p=>route.push([ox+(x0+p[0])*u,oy+p[1]*u]));
+      });
+    }
+    R=W*0.3;
+    samples=[];
+    for(let i=1;i<route.length;i++){
+      const a=route[i-1],b=route[i],d=dist(a,b),n=Math.max(1,Math.ceil(d/3));
+      for(let k=0;k<=n;k++)samples.push({p:[a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n],i});
+    }
+    covered=new Array(samples.length).fill(false);
+    keyP=route[0];doorP=route[route.length-1];
+    samples.forEach(s=>{s.need=dist(s.p,doorP)>W*0.9});
+    startP=samples[Math.floor(samples.length/2)].p.slice();
+    pos=startP.slice();hasKey=false;done=false;mark();
+    cv.style.height=ch+'px';
+  }
+  function nearest(p){
+    let best=null,bd=1e9;
+    for(let i=1;i<route.length;i++){
+      const a=route[i-1],b=route[i],dx=b[0]-a[0],dy=b[1]-a[1],l2=dx*dx+dy*dy||1;
+      let t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/l2;t=Math.max(0,Math.min(1,t));
+      const q=[a[0]+dx*t,a[1]+dy*t],d=dist(p,q);
+      if(d<bd){bd=d;best=q}
+    }
+    return [best,bd];
+  }
+  function mark(){samples.forEach((s,i)=>{if(!covered[i]&&dist(s.p,pos)<=W*0.6)covered[i]=true})}
+  function pct(){let n=0,c=0;samples.forEach((s,i)=>{if(s.need){n++;if(covered[i])c++}});return c/n}
+  const unlocked=()=>hasKey&&pct()>=0.96;
+  function stepTo(target){
+    const [q,d]=nearest(target),h=W/2-R;
+    const goal=d<=h?target:[q[0]+(target[0]-q[0])/d*h,q[1]+(target[1]-q[1])/d*h];
+    let guard=0;
+    while(dist(pos,goal)>0.5&&guard++<60){
+      const dd=dist(pos,goal),k=Math.min(3,dd)/dd;
+      const np=[pos[0]+(goal[0]-pos[0])*k,pos[1]+(goal[1]-pos[1])*k];
+      const [,nd]=nearest(np);if(nd>W/2)break;
+      if(!unlocked()&&dist(np,doorP)<W*0.8&&dist(pos,doorP)>=W*0.8)break;
+      pos=np;mark();
+      if(!hasKey&&dist(pos,keyP)<W*0.7)hasKey=true;
+      if(unlocked()&&dist(pos,doorP)<W*0.5){win();break}
+    }
+  }
+  function win(){
+    done=true;drag=false;
+    $('gmsg').textContent=MSG[lv];
+    if(lv<LEVELS.length-1){timer=setTimeout(()=>{lv++;load()},1100)}
+  }
+  function load(){build();draw();$('glevel').textContent='LEVEL '+(lv+1)+'/'+LEVELS.length}
+  function sprite(rows,cx,cy){
+    const w=rows[0].length,h=rows.length,x0=Math.round(cx/PX-w/2)*PX,y0=Math.round(cy/PX-h/2)*PX;
+    rows.forEach((row,j)=>{for(let i=0;i<w;i++){const c=PAL[row[i]];if(c&&row[i]!='.'){ctx.fillStyle=c;ctx.fillRect(x0+i*PX,y0+j*PX,PX,PX)}}});
+  }
+  function draw(){
+    const cw=cv.clientWidth,ch=cv.clientHeight;
+    const iw=Math.round(cw/PX),ih=Math.round(ch/PX);
+    if(cv.width!==iw||cv.height!==ih){cv.width=iw;cv.height=ih}
+    ctx.setTransform(1/PX,0,0,1/PX,0,0);ctx.imageSmoothingEnabled=false;
+    ctx.fillStyle='#333c57';ctx.fillRect(0,0,cw,ch);
+    ctx.lineCap=ctx.lineJoin='round';
+    const path=()=>{ctx.beginPath();route.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]))};
+    ctx.strokeStyle='#1a1c2c';ctx.lineWidth=W+PX*2;path();ctx.stroke();
+    ctx.strokeStyle='#f4f4f4';ctx.lineWidth=W;path();ctx.stroke();
+    ctx.fillStyle='#38b764';const b=Math.round(W*0.5/PX)*PX;
+    samples.forEach((s,i)=>{if(covered[i])ctx.fillRect(Math.round((s.p[0]-b/2)/PX)*PX,Math.round((s.p[1]-b/2)/PX)*PX,b,b)});
+    if(!hasKey)sprite(KEY,keyP[0],keyP[1]);
+    sprite(unlocked()?DOOR_OPEN:DOOR,doorP[0],doorP[1]);
+    sprite(GUY,pos[0],pos[1]-PX);
+    $('gstat').textContent='KEY '+(hasKey?'YES':'NO')+'  TRACE '+Math.min(100,Math.round(pct()*100))+'%';
+    $('ghint').textContent=(hasKey&&!unlocked()&&dist(pos,doorP)<W*1.6)?'trace the whole shape to open the door':'';
+  }
+  function pt(e){const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
+  cv.addEventListener('pointerdown',e=>{if(done)return;const p=pt(e);if(dist(p,pos)<W*1.6+10){drag=true;cv.setPointerCapture(e.pointerId)}});
+  cv.addEventListener('pointermove',e=>{if(!drag)return;stepTo(pt(e));draw()});
+  const up=()=>{drag=false};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  $('grestart').onclick=()=>{clearTimeout(timer);$('gmsg').textContent='';load()};
+  $('gall').onclick=()=>{clearTimeout(timer);lv=0;$('gmsg').textContent='';load()};
+  addEventListener('resize',()=>{if(ready&&$('s2').classList.contains('active')&&$('trace').style.display!='none')load()});
+  return{init(){ready=true;load()}};
+})();
+</script>
+</body>
+</html>
