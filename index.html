@@ -57,6 +57,10 @@
   .dpad{display:grid;grid-template-columns:repeat(3,56px);grid-template-areas:". u ." "l d r";gap:8px;justify-content:center;margin-top:16px}
   .dpad button{padding:12px 0;font-size:14px}
   #sU{grid-area:u}#sL{grid-area:l}#sD{grid-area:d}#sR{grid-area:r}
+  .rbox{font-family:'Press Start 2P',monospace;font-size:64px;color:var(--yellow);background:var(--navy);border:4px solid var(--light);box-shadow:6px 6px 0 #000;padding:40px 0;margin-top:8px}
+  .rbox.spin{color:var(--grey)}
+  .rhist{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+  .rhist span{font-family:'Press Start 2P',monospace;font-size:10px;padding:6px 8px;background:var(--wall);border:3px solid #000;color:var(--light)}
   .gtop{display:flex;justify-content:space-between;gap:8px;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--grey);margin:10px 0}
   .gbtns{display:flex;gap:12px;justify-content:center;margin-bottom:14px}
   #gc{width:100%;display:block;border:4px solid var(--light);box-shadow:6px 6px 0 #000;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;background:var(--wall)}
@@ -106,6 +110,11 @@
           <span class="gdesc">eat hearts, grow longer, don't crash</span>
           <span class="gtag">ARROWS / SWIPE</span>
         </button>
+        <button class="gcard" id="open-roll">
+          <span class="gtitle">ROLL</span>
+          <span class="gdesc">roll a number from 1 to 29</span>
+          <span class="gtag">LUCKY?</span>
+        </button>
       </div>
     </div>
     <div id="trace" class="gwrap" style="display:none">
@@ -143,19 +152,29 @@
       <div class="dpad"><button class="btn small" id="sU">^</button><button class="btn small" id="sL">&lt;</button><button class="btn small" id="sD">v</button><button class="btn small" id="sR">&gt;</button></div>
       <div class="gmsg" id="smsg"></div>
     </div>
+    <div id="rollp" class="gwrap" style="display:none">
+      <h1>ROLL</h1>
+      <div class="sub">1 to 29</div>
+      <div class="gbtns"><button class="btn small" id="rback">BACK</button><button class="btn small" id="rrestart">RESTART</button></div>
+      <div class="gtop"><span id="rcount"></span><span></span></div>
+      <div class="rbox" id="rnum">?</div>
+      <button class="btn full" id="rgo">ROLL</button>
+      <div class="rhist" id="rhist"></div>
+    </div>
   </section>
 </main>
 <script>
 const $=id=>document.getElementById(id);
 function show(n){for(const i of [1,2]){$('t'+i).classList.toggle('active',i==n);$('s'+i).classList.toggle('active',i==n)}}
-const PANELS={trace:()=>game.init(),memory:()=>memory.start(),catchp:()=>catchGame.start(),snakep:()=>snake.start()};
+const PANELS={trace:()=>game.init(),memory:()=>memory.start(),catchp:()=>catchGame.start(),snakep:()=>snake.start(),rollp:()=>roll.start()};
 const openGame=id=>{$('hub').style.display='none';$(id).style.display='block';PANELS[id]()};
-const backHub=()=>{Object.keys(PANELS).forEach(id=>$(id).style.display='none');catchGame.stop();snake.stop();$('hub').style.display='block'};
+const backHub=()=>{Object.keys(PANELS).forEach(id=>$(id).style.display='none');catchGame.stop();snake.stop();roll.stop();$('hub').style.display='block'};
 $('open-trace').onclick=()=>openGame('trace');
 $('open-memory').onclick=()=>openGame('memory');
 $('open-catch').onclick=()=>openGame('catchp');
 $('open-snake').onclick=()=>openGame('snakep');
-$('gback').onclick=backHub;$('mback').onclick=backHub;$('cback').onclick=backHub;$('sback').onclick=backHub;
+$('open-roll').onclick=()=>openGame('rollp');
+$('gback').onclick=backHub;$('mback').onclick=backHub;$('cback').onclick=backHub;$('sback').onclick=backHub;$('rback').onclick=backHub;
 $('t1').onclick=()=>show(1);$('t2').onclick=()=>show(2);
 
 // ---- Tab 1: notes (the note lives inside the share link, no server needed) ----
@@ -503,6 +522,38 @@ const snake=(()=>{
   });
   $('sU').onclick=()=>turn(0,-1);$('sD').onclick=()=>turn(0,1);$('sL').onclick=()=>turn(-1,0);$('sR').onclick=()=>turn(1,0);
   $('srestart').onclick=start;
+  return{start,stop};
+})();
+
+// ---- Roll: 1-29. Rolls 1-2 come out low, roll 3 comes out high, then it is plain random ----
+const roll=(()=>{
+  const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+  let n=0,busy=false,timer=0,hist=[];
+  function pick(){
+    n++;
+    if(n<=2)return rnd(1,9);
+    if(n==3)return rnd(26,29);
+    return rnd(1,29);
+  }
+  function stats(){$('rcount').textContent='ROLLS '+n}
+  function start(){
+    stop();n=0;hist=[];$('rnum').textContent='?';$('rnum').classList.remove('spin');
+    $('rhist').textContent='';$('rgo').disabled=false;stats();
+  }
+  function stop(){clearInterval(timer);busy=false}
+  function go(){
+    if(busy)return;
+    busy=true;$('rgo').disabled=true;$('rnum').classList.add('spin');
+    const result=pick(),t0=performance.now();
+    timer=setInterval(()=>{
+      if(performance.now()-t0<900){$('rnum').textContent=rnd(1,29);return}
+      clearInterval(timer);busy=false;$('rgo').disabled=false;
+      $('rnum').classList.remove('spin');$('rnum').textContent=result;
+      hist.push(result);stats();
+      const sp=document.createElement('span');sp.textContent=result;$('rhist').append(sp);
+    },60);
+  }
+  $('rgo').onclick=go;$('rrestart').onclick=start;
   return{start,stop};
 })();
 </script>
