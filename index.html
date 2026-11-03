@@ -61,6 +61,10 @@
   .rbox.spin{color:var(--grey)}
   .rhist{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
   .rhist span{font-family:'Press Start 2P',monospace;font-size:10px;padding:6px 8px;background:var(--wall);border:3px solid #000;color:var(--light)}
+  .qans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .qans .btn{font-size:16px;padding:16px 0}
+  .qans .btn.ok{background:var(--lime)}.qans .btn.bad{background:var(--orange)}
+  #zU{grid-area:u}#zL{grid-area:l}#zD{grid-area:d}#zR{grid-area:r}
   .gtop{display:flex;justify-content:space-between;gap:8px;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--grey);margin:10px 0}
   .gbtns{display:flex;gap:12px;justify-content:center;margin-bottom:14px}
   #gc{width:100%;display:block;border:4px solid var(--light);box-shadow:6px 6px 0 #000;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;background:var(--wall)}
@@ -115,6 +119,31 @@
           <span class="gdesc">roll a number from 1 to 29</span>
           <span class="gtag">LUCKY?</span>
         </button>
+        <button class="gcard" id="open-math">
+          <span class="gtitle">MATH</span>
+          <span class="gdesc">solve the sums before time runs out</span>
+          <span class="gtag">45 SECONDS</span>
+        </button>
+        <button class="gcard" id="open-chick">
+          <span class="gtitle">CHICKEN</span>
+          <span class="gdesc">tap the runaway chickens</span>
+          <span class="gtag">30 SECONDS</span>
+        </button>
+        <button class="gcard" id="open-fish">
+          <span class="gtitle">FISH</span>
+          <span class="gdesc">eat smaller fish, avoid bigger ones</span>
+          <span class="gtag">GROW BIG</span>
+        </button>
+        <button class="gcard" id="open-cannon">
+          <span class="gtitle">CANNON</span>
+          <span class="gdesc">dodge the cannonballs</span>
+          <span class="gtag">SURVIVE</span>
+        </button>
+        <button class="gcard" id="open-maze">
+          <span class="gtitle">MAZE</span>
+          <span class="gdesc">find the way to the heart</span>
+          <span class="gtag">RANDOM MAZES</span>
+        </button>
       </div>
     </div>
     <div id="trace" class="gwrap" style="display:none">
@@ -161,20 +190,67 @@
       <button class="btn full" id="rgo">ROLL</button>
       <div class="rhist" id="rhist"></div>
     </div>
+    <div id="mathp" class="gwrap" style="display:none">
+      <h1>MATH</h1>
+      <div class="sub">pick the right answer</div>
+      <div class="gbtns"><button class="btn small" id="qback">BACK</button><button class="btn small" id="qrestart">RESTART</button></div>
+      <div class="gtop"><span id="ql"></span><span id="qr"></span></div>
+      <div class="rbox" id="qq" style="font-size:26px;padding:28px 8px">?</div>
+      <div class="qans" id="qa"></div>
+      <div class="gmsg" id="qmsg"></div>
+    </div>
+    <div id="chickp" class="gwrap" style="display:none">
+      <h1>CHICKEN</h1>
+      <div class="sub">tap the chickens</div>
+      <div class="gbtns"><button class="btn small" id="kback">BACK</button><button class="btn small" id="krestart">RESTART</button></div>
+      <div class="gtop"><span id="kl"></span><span id="kr"></span></div>
+      <canvas id="kc" class="pc" style="aspect-ratio:3/4"></canvas>
+      <div class="gmsg" id="kmsg"></div>
+    </div>
+    <div id="fishp" class="gwrap" style="display:none">
+      <h1>FISH</h1>
+      <div class="sub">move your finger or mouse</div>
+      <div class="gbtns"><button class="btn small" id="fback">BACK</button><button class="btn small" id="frestart">RESTART</button></div>
+      <div class="gtop"><span id="fl"></span><span id="fr"></span></div>
+      <canvas id="fc" class="pc" style="aspect-ratio:4/3"></canvas>
+      <div class="gmsg" id="fmsg"></div>
+    </div>
+    <div id="cannonp" class="gwrap" style="display:none">
+      <h1>CANNON</h1>
+      <div class="sub">drag to dodge</div>
+      <div class="gbtns"><button class="btn small" id="nback">BACK</button><button class="btn small" id="nrestart">RESTART</button></div>
+      <div class="gtop"><span id="nl"></span><span id="nr"></span></div>
+      <canvas id="nc" class="pc" style="aspect-ratio:1/1"></canvas>
+      <div class="gmsg" id="nmsg"></div>
+    </div>
+    <div id="mazep" class="gwrap" style="display:none">
+      <h1>MAZE</h1>
+      <div class="sub">arrow keys, swipe, or the pad</div>
+      <div class="gbtns"><button class="btn small" id="zback">BACK</button><button class="btn small" id="zrestart">RESTART</button></div>
+      <div class="gtop"><span id="zl"></span><span id="zr"></span></div>
+      <canvas id="zc" class="pc" style="aspect-ratio:1/1"></canvas>
+      <div class="dpad"><button class="btn small" id="zU">^</button><button class="btn small" id="zL">&lt;</button><button class="btn small" id="zD">v</button><button class="btn small" id="zR">&gt;</button></div>
+      <div class="gmsg" id="zmsg"></div>
+    </div>
   </section>
 </main>
 <script>
 const $=id=>document.getElementById(id);
 function show(n){for(const i of [1,2]){$('t'+i).classList.toggle('active',i==n);$('s'+i).classList.toggle('active',i==n)}}
-const PANELS={trace:()=>game.init(),memory:()=>memory.start(),catchp:()=>catchGame.start(),snakep:()=>snake.start(),rollp:()=>roll.start()};
+const PANELS={trace:()=>game.init(),memory:()=>memory.start(),catchp:()=>catchGame.start(),snakep:()=>snake.start(),rollp:()=>roll.start(),mathp:()=>mathGame.start(),chickp:()=>chick.start(),fishp:()=>fish.start(),cannonp:()=>cannon.start(),mazep:()=>maze.start()};
 const openGame=id=>{$('hub').style.display='none';$(id).style.display='block';PANELS[id]()};
-const backHub=()=>{Object.keys(PANELS).forEach(id=>$(id).style.display='none');catchGame.stop();snake.stop();roll.stop();$('hub').style.display='block'};
+const backHub=()=>{Object.keys(PANELS).forEach(id=>$(id).style.display='none');[catchGame,snake,roll,mathGame,chick,fish,cannon,maze].forEach(g=>g.stop());$('hub').style.display='block'};
 $('open-trace').onclick=()=>openGame('trace');
 $('open-memory').onclick=()=>openGame('memory');
 $('open-catch').onclick=()=>openGame('catchp');
 $('open-snake').onclick=()=>openGame('snakep');
 $('open-roll').onclick=()=>openGame('rollp');
-$('gback').onclick=backHub;$('mback').onclick=backHub;$('cback').onclick=backHub;$('sback').onclick=backHub;$('rback').onclick=backHub;
+$('open-math').onclick=()=>openGame('mathp');
+$('open-chick').onclick=()=>openGame('chickp');
+$('open-fish').onclick=()=>openGame('fishp');
+$('open-cannon').onclick=()=>openGame('cannonp');
+$('open-maze').onclick=()=>openGame('mazep');
+$('gback').onclick=backHub;$('mback').onclick=backHub;$('cback').onclick=backHub;$('sback').onclick=backHub;$('rback').onclick=backHub;['qback','kback','fback','nback','zback'].forEach(id=>$(id).onclick=backHub);
 $('t1').onclick=()=>show(1);$('t2').onclick=()=>show(2);
 
 // ---- Tab 1: notes (the note lives inside the share link, no server needed) ----
@@ -554,6 +630,249 @@ const roll=(()=>{
     },60);
   }
   $('rgo').onclick=go;$('rrestart').onclick=start;
+  return{start,stop};
+})();
+
+// ---- helpers for the newer games ----
+const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const clampN=(v,a,b)=>Math.max(a,Math.min(b,v));
+const cpos=(cv,e,W,H)=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]};
+function makeLoop(update){
+  let raf=0,last=0,on=false;
+  const frame=t=>{if(!on)return;const dt=Math.min(0.05,(t-last)/1000||0);last=t;update(dt);raf=requestAnimationFrame(frame)};
+  return{start(){on=true;last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame)},stop(){on=false;cancelAnimationFrame(raf)}};
+}
+Object.assign(SPR_PAL,{w:'#f4f4f4',o:'#ef7d57',n:'#a8662b'});
+SPR.chick=['...rr...','..wwww..','..wkwwy.','..wwww..','.wwwwww.','wwwwwww.','.wwwwww.','..y..y..'];
+SPR.chickL=SPR.chick.map(r=>[...r].reverse().join(''));
+SPR.blob=['..oooo..','.oooooo.','.okooko.','.oooooo.','.oooooo.','..oooo..','.oo..oo.','.nn..nn.'];
+
+// ---- Math ----
+const mathGame=(()=>{
+  let score=0,time=0,timer=0,over=true,res=0,best=bestGet('mathBest');
+  const stats=()=>{$('ql').textContent='SCORE '+score+'  BEST '+best;$('qr').textContent='TIME '+time};
+  function gen(){
+    const lvl=Math.min(3,Math.floor(score/5)),ops=lvl==0?['+','-']:['+','-','x'],op=ops[rand(0,ops.length-1)];
+    let a,b;
+    if(op=='+'){a=rand(2,9+lvl*10);b=rand(2,9+lvl*10);res=a+b}
+    else if(op=='-'){a=rand(5,15+lvl*15);b=rand(1,a-1);res=a-b}
+    else{a=rand(2,6+lvl*2);b=rand(2,9);res=a*b}
+    const set=new Set([res]);
+    while(set.size<4){const v=res+rand(1,6)*(Math.random()<0.5?-1:1);if(v>=0)set.add(v)}
+    const opts=[...set];
+    for(let i=opts.length-1;i>0;i--){const j=rand(0,i);[opts[i],opts[j]]=[opts[j],opts[i]]}
+    $('qq').textContent=a+' '+op+' '+b+' = ?';
+    $('qa').textContent='';
+    opts.forEach(v=>{const bt=document.createElement('button');bt.className='btn';bt.textContent=v;bt.onclick=()=>pick(bt,v);$('qa').append(bt)});
+  }
+  function pick(bt,v){
+    if(over)return;
+    if(v==res){score++;stats();bt.classList.add('ok');setTimeout(()=>{if(!over)gen()},150)}
+    else{time=Math.max(0,time-3);bt.classList.add('bad');stats();if(time<=0)end()}
+  }
+  function end(){
+    over=true;clearInterval(timer);
+    if(score>best){best=score;bestSet('mathBest',best)}
+    stats();$('qmsg').textContent='TIME UP';
+    document.querySelectorAll('#qa .btn').forEach(b=>b.disabled=true);
+  }
+  function start(){
+    stop();score=0;time=45;over=false;$('qmsg').textContent='';gen();stats();
+    timer=setInterval(()=>{time--;stats();if(time<=0)end()},1000);
+  }
+  function stop(){clearInterval(timer)}
+  $('qrestart').onclick=start;
+  return{start,stop};
+})();
+
+// ---- Chicken ----
+const chick=(()=>{
+  const cv=$('kc'),ctx=cv.getContext('2d'),W=120,H=160;cv.width=W;cv.height=H;
+  let hens=[],score=0,time=0,over=true,best=bestGet('chickBest');
+  const stats=()=>{$('kl').textContent='SCORE '+score+'  BEST '+best;$('kr').textContent='TIME '+Math.ceil(time)};
+  function dirOf(h){const a=Math.random()*Math.PI*2,sp=Math.min(70,20+score*0.8)+rand(0,15);h.vx=Math.cos(a)*sp;h.vy=Math.sin(a)*sp;h.t=0.5+Math.random()}
+  function spawn(){const h={x:rand(0,W-8),y:rand(0,H-8)};dirOf(h);return h}
+  function update(dt){
+    if(!over){
+      time-=dt;
+      if(time<=0){time=0;over=true;if(score>best){best=score;bestSet('chickBest',best)}$('kmsg').textContent='TIME UP'}
+      stats();
+    }
+    hens.forEach(h=>{
+      h.t-=dt;if(h.t<=0)dirOf(h);
+      h.x+=h.vx*dt;h.y+=h.vy*dt;
+      if(h.x<0||h.x>W-8){h.vx=-h.vx;h.x=clampN(h.x,0,W-8)}
+      if(h.y<0||h.y>H-8){h.vy=-h.vy;h.y=clampN(h.y,0,H-8)}
+    });
+    draw();
+  }
+  function draw(){
+    ctx.fillStyle='#38b764';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#2f9a58';for(let i=0;i<30;i++)ctx.fillRect((i*47)%W,(i*29)%H,2,1);
+    hens.forEach(h=>spr(ctx,h.vx<0?SPR.chickL:SPR.chick,h.x,h.y));
+  }
+  cv.addEventListener('pointerdown',e=>{
+    if(over)return;
+    const [x,y]=cpos(cv,e,W,H);let hit=-1,bd=11;
+    hens.forEach((h,i)=>{const d=Math.hypot(h.x+4-x,h.y+4-y);if(d<bd){bd=d;hit=i}});
+    if(hit>=0){score++;hens[hit]=spawn();stats()}
+  });
+  const loop=makeLoop(update);
+  function start(){score=0;time=30;over=false;$('kmsg').textContent='';hens=Array.from({length:6},spawn);stats();loop.start()}
+  $('krestart').onclick=start;
+  return{start,stop:loop.stop};
+})();
+
+// ---- Fish ----
+const fish=(()=>{
+  const cv=$('fc'),ctx=cv.getContext('2d'),W=160,H=120;cv.width=W;cv.height=H;
+  let me,others,tx,ty,spawnT,score,over=true,best=bestGet('fishBest');
+  const stats=()=>{$('fl').textContent='EATEN '+score+'  BEST '+best;$('fr').textContent='SIZE '+Math.round(me.r)};
+  function add(){
+    if(others.length>=9)return;
+    const bigger=Math.random()<0.4,r=bigger?Math.min(30,me.r+rand(2,9)):Math.max(3,rand(3,Math.max(3,Math.floor(me.r)-1)));
+    const left=Math.random()<0.5,sp=rand(15,35);
+    others.push({x:left?-r*2:W+r*2,y:rand(10,H-10),r,vx:left?sp:-sp});
+  }
+  function body(x,y,r,dir,color){
+    ctx.fillStyle=color;
+    ctx.beginPath();ctx.ellipse(x,y,r*1.2,r*0.8,0,0,7);ctx.fill();
+    ctx.beginPath();ctx.moveTo(x-dir*r*1.1,y);ctx.lineTo(x-dir*r*2,y-r*0.7);ctx.lineTo(x-dir*r*2,y+r*0.7);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#1a1c2c';ctx.fillRect(Math.round(x+dir*r*0.6-0.5),Math.round(y-r*0.25),Math.max(1,Math.round(r*0.2)),Math.max(1,Math.round(r*0.2)));
+  }
+  function end(msg){
+    over=true;if(score>best){best=score;bestSet('fishBest',best)}
+    stats();$('fmsg').textContent=msg;
+  }
+  function update(dt){
+    if(!over){
+      const dx=tx-me.x,dy=ty-me.y,d=Math.hypot(dx,dy);
+      if(d>1){const st=Math.min(d,70*dt);me.x+=dx/d*st;me.y+=dy/d*st;if(Math.abs(dx)>1)me.dir=dx>0?1:-1}
+      me.x=clampN(me.x,0,W);me.y=clampN(me.y,0,H);
+      spawnT-=dt;if(spawnT<=0){add();spawnT=0.7}
+      others.forEach(o=>{o.x+=o.vx*dt});
+      others=others.filter(o=>o.x>-o.r*3-5&&o.x<W+o.r*3+5);
+      for(const o of others){
+        if(Math.hypot(o.x-me.x,o.y-me.y)<(o.r+me.r)*0.75){
+          if(me.r>=o.r){score++;me.r=Math.min(24,me.r+o.r*0.12+0.2);others=others.filter(f=>f!==o);stats();if(me.r>=22){end('BIGGEST FISH!');break}}
+          else{end('GAME OVER');break}
+        }
+      }
+    }
+    draw();
+  }
+  function draw(){
+    ctx.fillStyle='#257179';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#29366f';for(let i=0;i<12;i++)ctx.fillRect((i*41)%W,(i*23)%H,3,1);
+    others.forEach(o=>body(o.x,o.y,o.r,Math.sign(o.vx),o.r<me.r?'#73eff7':'#b13e53'));
+    body(me.x,me.y,me.r,me.dir,'#a7f070');
+  }
+  cv.addEventListener('pointermove',e=>{[tx,ty]=cpos(cv,e,W,H)});
+  cv.addEventListener('pointerdown',e=>{[tx,ty]=cpos(cv,e,W,H)});
+  const loop=makeLoop(update);
+  function start(){me={x:W/2,y:H/2,r:5,dir:1};tx=me.x;ty=me.y;others=[];spawnT=0;score=0;over=false;$('fmsg').textContent='';stats();loop.start()}
+  $('frestart').onclick=start;
+  return{start,stop:loop.stop};
+})();
+
+// ---- Cannon ----
+const cannon=(()=>{
+  const cv=$('nc'),ctx=cv.getContext('2d'),W=120,H=120;cv.width=W;cv.height=H;
+  let p,tx,ty,balls,warns,t,fireT,over=true,best=+bestGet('cannonBest');
+  const stats=()=>{$('nl').textContent='TIME '+t.toFixed(1);$('nr').textContent='BEST '+best.toFixed(1)};
+  function warn(){
+    const e=rand(0,3),a=rand(10,W-10);
+    const pt=e==0?[a,0]:e==1?[W,a]:e==2?[a,H]:[0,a];
+    warns.push({x:pt[0],y:pt[1],t:0.6});
+  }
+  function update(dt){
+    if(!over){
+      t+=dt;
+      const dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy);
+      if(d>1){const st=Math.min(d,80*dt);p.x+=dx/d*st;p.y+=dy/d*st}
+      p.x=clampN(p.x,4,W-4);p.y=clampN(p.y,4,H-4);
+      fireT-=dt;if(fireT<=0){warn();fireT=Math.max(0.35,1.3-t*0.02)}
+      warns.forEach(w=>{w.t-=dt});
+      warns.filter(w=>w.t<=0).forEach(w=>{
+        const ax=p.x+rand(-8,8)-w.x,ay=p.y+rand(-8,8)-w.y,d=Math.hypot(ax,ay)||1,sp=Math.min(75,35+t*0.6);
+        balls.push({x:w.x,y:w.y,vx:ax/d*sp,vy:ay/d*sp});
+      });
+      warns=warns.filter(w=>w.t>0);
+      balls.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt});
+      balls=balls.filter(b=>b.x>-10&&b.x<W+10&&b.y>-10&&b.y<H+10);
+      if(balls.some(b=>Math.hypot(b.x-p.x,b.y-p.y)<5)){
+        over=true;if(t>best){best=t;bestSet('cannonBest',best)}$('nmsg').textContent='BOOM!';
+      }
+      stats();
+    }
+    draw();
+  }
+  function draw(){
+    ctx.fillStyle='#d2a679';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#c19460';for(let i=0;i<20;i++)ctx.fillRect((i*37)%W,(i*53)%H,3,1);
+    ctx.fillStyle='#1a1c2c';ctx.fillRect(0,0,W,2);ctx.fillRect(0,H-2,W,2);ctx.fillRect(0,0,2,H);ctx.fillRect(W-2,0,2,H);
+    warns.forEach(w=>{if(Math.floor(w.t*10)%2){ctx.fillStyle='#b13e53';ctx.fillRect(clampN(w.x-3,0,W-6),clampN(w.y-3,0,H-6),6,6)}});
+    ctx.fillStyle='#1a1c2c';
+    balls.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,2.5,0,7);ctx.fill()});
+    spr(ctx,SPR.blob,p.x-4,p.y-4);
+  }
+  cv.addEventListener('pointermove',e=>{[tx,ty]=cpos(cv,e,W,H)});
+  cv.addEventListener('pointerdown',e=>{[tx,ty]=cpos(cv,e,W,H)});
+  const loop=makeLoop(update);
+  function start(){p={x:W/2,y:H/2};tx=p.x;ty=p.y;balls=[];warns=[];t=0;fireT=0.5;over=false;$('nmsg').textContent='';stats();loop.start()}
+  $('nrestart').onclick=start;
+  return{start,stop:loop.stop};
+})();
+
+// ---- Maze ----
+const maze=(()=>{
+  const N=10,T=8,S=2*N+1,cv=$('zc'),ctx=cv.getContext('2d');cv.width=cv.height=S*T;
+  let grid,px,py,steps,n=0,active=false,done=false,nextT=0;
+  const stats=()=>{$('zl').textContent='MAZE '+n;$('zr').textContent='STEPS '+steps};
+  function gen(){
+    grid=Array.from({length:S},()=>Array(S).fill(1));
+    const stack=[[1,1]];grid[1][1]=0;
+    while(stack.length){
+      const [x,y]=stack[stack.length-1];
+      const dirs=[[2,0],[-2,0],[0,2],[0,-2]].sort(()=>Math.random()-0.5)
+        .filter(([dx,dy])=>{const nx=x+dx,ny=y+dy;return nx>0&&ny>0&&nx<S-1&&ny<S-1&&grid[ny][nx]==1});
+      if(!dirs.length){stack.pop();continue}
+      const [dx,dy]=dirs[0];grid[y+dy/2][x+dx/2]=0;grid[y+dy][x+dx]=0;stack.push([x+dx,y+dy]);
+    }
+    px=py=1;steps=0;done=false;
+  }
+  function draw(){
+    for(let y=0;y<S;y++)for(let x=0;x<S;x++){
+      if(grid[y][x]){ctx.fillStyle='#333c57';ctx.fillRect(x*T,y*T,T,T);ctx.fillStyle='#566c86';ctx.fillRect(x*T+1,y*T+1,T-2,T-2)}
+      else{ctx.fillStyle='#1a1c2c';ctx.fillRect(x*T,y*T,T,T)}
+    }
+    spr(ctx,SPR.heart,(S-2)*T,(S-2)*T);
+    spr(ctx,SPR.blob,px*T,py*T);
+  }
+  function move(dx,dy){
+    if(!active||done)return;
+    const nx=px+dx,ny=py+dy;
+    if(grid[ny]&&grid[ny][nx]===0){
+      px=nx;py=ny;steps++;stats();
+      if(px==S-2&&py==S-2){done=true;$('zmsg').textContent='YOU MADE IT';nextT=setTimeout(()=>{n++;$('zmsg').textContent='';gen();stats();draw()},1000)}
+    }
+    draw();
+  }
+  function start(){clearTimeout(nextT);n=1;active=true;$('zmsg').textContent='';gen();stats();draw()}
+  function stop(){active=false;clearTimeout(nextT)}
+  const K={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0]};
+  document.addEventListener('keydown',e=>{if(!active)return;const k=K[e.key];if(k){move(k[0],k[1]);e.preventDefault()}});
+  let ax,ay;
+  cv.addEventListener('pointerdown',e=>{ax=e.clientX;ay=e.clientY;cv.setPointerCapture(e.pointerId)});
+  cv.addEventListener('pointermove',e=>{
+    if(ax==null)return;const dx=e.clientX-ax,dy=e.clientY-ay;
+    if(Math.max(Math.abs(dx),Math.abs(dy))<14)return;
+    if(Math.abs(dx)>Math.abs(dy))move(dx>0?1:-1,0);else move(0,dy>0?1:-1);
+    ax=e.clientX;ay=e.clientY;
+  });
+  const up=()=>{ax=null};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  $('zU').onclick=()=>move(0,-1);$('zD').onclick=()=>move(0,1);$('zL').onclick=()=>move(-1,0);$('zR').onclick=()=>move(1,0);
+  $('zrestart').onclick=start;
   return{start,stop};
 })();
 </script>
